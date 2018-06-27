@@ -1,55 +1,66 @@
 
 var mongoose = require('mongoose');
+var readline = require('readline');
+
+var clock = 1000;
 
 
-var clock = 5000;
-var uri = 'mongodb://mongouser:mongouser123@ds247330.mlab.com:47330/unimi';
 
-console.log("connecting..");
-mongoose.connect(uri);
-
-var db = mongoose.connection;
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 
-db.on('error', console.error.bind(console, 'connection error:'));
-
-db.once('open', function callback() {
-  var measureSchema = mongoose.Schema({
-    username: String,
-    timestamp: Date,
+var processResponse = function processResponse (user) {
     
-    torque: Number,
-    speed: Number,
-    current: Number,
-    power: Number,
-    temperature: Number
-  });
+    send(user);
+    rl.close();
+  };
 
-  // Store measure documents in a collection called "measures"
-  var Measures = mongoose.model('measures', measureSchema);
+rl.question('Please enter the machine owner username: ', processResponse);
 
-  // Create seed data
-  var messageAndreaSeed = {
-        username: 'andrea',
-        timestamp: '2018-06-14 00:00:00',
 
-        torque: 11.22,
-        speed: 1200.003,
-        current: 4.03,
-        power: 6.32,
-        temperature: 20.3
-    };
+var send = function sendDataToUser(user){
 
-    var messageRobertaSeed = {
-        username: 'roberta',
-        timestamp: '2018-06-14 00:00:00',
+    console.log('Selected user: ', user);
 
-        torque: 22.22,
-        speed: 2322.003,
-        current: 11.03,
-        power: 18.32,
-        temperature: 25.2
-    };
+    var uri = 'mongodb://mongouser:mongouser123@ds247330.mlab.com:47330/unimi';
+
+    console.log("connecting..");
+    mongoose.connect(uri);
+
+    var db = mongoose.connection;
+
+
+    db.on('error', console.error.bind(console, 'connection error:'));
+
+    db.once('open', function callback() {
+    var measureSchema = mongoose.Schema({
+        username: String,
+        timestamp: Date,
+        
+        torque: Number,
+        speed: Number,
+        current: Number,
+        power: Number,
+        temperature: Number
+    });
+
+    // Store measure documents in a collection called "measures"
+    var Measures = mongoose.model('measures', measureSchema);
+
+    // Create seed data
+    var messageSeed = {
+            username: user,
+            timestamp: '2018-06-14 00:00:00',
+
+            torque: 11.22,
+            speed: 1200.003,
+            current: 4.03,
+            power: 6.32,
+            temperature: 20.3
+        };
 
 
     function randomizeMessage(message)
@@ -65,23 +76,20 @@ db.once('open', function callback() {
         
         setTimeout(delayFunct, clock);
 
+        randomizeMessage(messageSeed);
 
-        randomizeMessage(messageAndreaSeed);
-        randomizeMessage(messageRobertaSeed);
+        messageSeed.timestamp =  new Date;
 
-        messageAndreaSeed.timestamp =  new Date;
-        messageRobertaSeed.timestamp =  new Date;
-
-        console.log(messageAndreaSeed);
-        console.log(messageRobertaSeed);
-        
-        var list = [messageAndreaSeed, messageRobertaSeed]
+        console.log(messageSeed);
+  
+        var list = [messageSeed]
         Measures.insertMany(list).catch(err => {
             console.log(err)
         });
-      }
+    }
 
     console.log("launching timer..");
     setTimeout(delayFunct, clock);
 
-});
+    });
+};
