@@ -67,9 +67,9 @@ var send = function sendDataToUser(user){
     {
         message.speed = message.speed+(message.speed*0.1*(Math.random()-0.5));
         message.temperature = message.temperature + (message.temperature*0.1*(Math.random()-0.5));
+        message.torque = message.torque + (message.torque*0.1*(Math.random()-0.5));
         message.power = message.power + (message.power*0.1*(Math.random()-0.5));
         message.current = message.current + (message.current*0.1*(Math.random()-0.5));
-        message.torque = message.torque + (message.torque*0.1*(Math.random()-0.5));
     }
 
     function delayFunct() {
